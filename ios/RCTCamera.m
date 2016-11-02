@@ -30,15 +30,6 @@
 - (void)setOrientation:(NSInteger)orientation
 {
   [self.manager changeOrientation:orientation];
-
-  if (orientation == RCTCameraOrientationAuto) {
-    [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-    [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
-  }
-  else {
-    [[NSNotificationCenter defaultCenter]removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
-    [self changePreviewOrientation:orientation];
-  }
 }
 
 - (void)setOnFocusChanged:(BOOL)enabled
@@ -105,15 +96,8 @@
 {
   [self.manager stopSession];
   [super removeFromSuperview];
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
   [UIApplication sharedApplication].idleTimerDisabled = _previousIdleTimerDisabled;
 }
-
-- (void)orientationChanged:(NSNotification *)notification{
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-  [self changePreviewOrientation:orientation];
-}
-
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -177,15 +161,6 @@
     if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
         [self.manager zoom:pinchRecognizer.velocity reactTag:self.reactTag];
     }
-}
-
-- (void)changePreviewOrientation:(NSInteger)orientation
-{
-    dispatch_async(self.manager.sessionQueue, ^{
-        if (self.manager.previewLayer.connection.isVideoOrientationSupported) {
-            self.manager.previewLayer.connection.videoOrientation = orientation;
-        }
-    });
 }
 
 @end

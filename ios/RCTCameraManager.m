@@ -114,10 +114,14 @@ RCT_EXPORT_MODULE();
            };
 }
 
-RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(defaultOnFocusComponent, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onFocusChanged, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onZoomChanged, BOOL);
+
+RCT_CUSTOM_VIEW_PROPERTY(orientation, NSInteger, RCTCamera) {
+  NSInteger orientation = [RCTConvert NSInteger:json];
+  [self setOrientation:orientation];
+}
 
 RCT_CUSTOM_VIEW_PROPERTY(captureQuality, NSInteger, RCTCamera) {
   NSInteger quality = [RCTConvert NSInteger:json];
@@ -327,10 +331,6 @@ RCT_EXPORT_METHOD(checkAudioAuthorizationStatus:(RCTPromiseResolveBlock)resolve
     }];
 }
 
-RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
-  [self setOrientation:orientation];
-}
-
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -429,6 +429,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       });
     }]];
 
+    self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
     [self.session startRunning];
   });
 }
@@ -697,14 +698,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
 -(void)captureVideo:(NSInteger)target options:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
-    AVCaptureVideoOrientation orientation = options[@"orientation"] != nil ? [options[@"orientation"] integerValue] : self.orientation;
-    if (orientation == RCTCameraOrientationAuto) {
-        [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
-            [self captureVideo:target options:options orientation:[self.sensorOrientationChecker convertToAVCaptureVideoOrientation: orientation] resolve:resolve reject:reject];
-        }];
-    } else {
-        [self captureVideo:target options:options orientation:orientation resolve:resolve reject:reject];
-    }
+    AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeRight;
+    [self captureVideo:target options:options orientation:orientation resolve:resolve reject:reject];
 }
 
 -(void)captureVideo:(NSInteger)target options:(NSDictionary *)options orientation:(AVCaptureVideoOrientation)orientation resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
