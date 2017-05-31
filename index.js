@@ -78,6 +78,7 @@ export default class Camera extends Component {
       PropTypes.number
     ]),
     captureAudio: PropTypes.bool,
+    captureBitRate: PropTypes.number,
     captureMode: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
@@ -218,6 +219,7 @@ export default class Camera extends Component {
       playSoundOnCapture: props.playSoundOnCapture,
       target: props.captureTarget,
       quality: props.captureQuality,
+      bitRate: props.captureBitRate,
       type: props.type,
       title: '',
       description: '',

@@ -322,6 +322,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             mMediaRecorder.setMaxFileSize(maxFileSize);
         }
 
+        if (options.hasKey("bitRate")) {
+            int bitRate = options.getInt("bitRate");
+            mMediaRecorder.setVideoEncodingBitRate(bitRate);
+        }
+
         // Prepare the MediaRecorder instance with the provided configuration settings.
         try {
             mMediaRecorder.prepare();
